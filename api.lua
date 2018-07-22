@@ -237,11 +237,7 @@ app:match('login', '/users/:username/login', respond_to({
         if (hash_password(password, user.salt) == user.password) then
             if not user.verified then
                 -- Check whether verification token is still unused and valid
-                local token =
-                    Tokens:find({
-                        username = user.username,
-                        purpose = 'verify_user'
-                    })
+                local token = user.get_verification_token()
                 if token then
                     local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
                     if query.date_part > 3 then

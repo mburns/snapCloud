@@ -75,15 +75,48 @@ end
 -- Database abstractions
 
 package.loaded.Users = package.loaded.Model:extend('users', {
-    primary_key = { 'username' }
+    primary_key = { 'username' },
+    relations = {
+        {"projects", has_many = "Projects", key = "username"},
+        {
+            "public_projects",
+            has_many = "Projects",
+            key = "username",
+            where = { ispublic = true }
+         },
+        {
+            "published_projects",
+            has_many = "Projects",
+            key = "username",
+            where = { ispubished = true }
+        },
+        {
+            "verification_token",
+            has_one = "Tokens",
+            key = "username",
+            where = { purpose = 'verify_user' }
+        },
+        {
+            "password_reset_token",
+            has_one = "Tokens",
+            key = "username",
+            where = { purpose = 'password_reset' }
+        }
+    }
 })
 
 package.loaded.Projects = package.loaded.Model:extend('projects', {
-    primary_key = { 'username', 'projectname' }
+    primary_key = { 'username', 'projectname' },
+    relations = {
+        {"user", belongs_to = "Users", key = "username"}
+    }
 })
 
 package.loaded.Tokens = package.loaded.Model:extend('tokens', {
-    primary_key = { 'value' }
+    primary_key = { 'value' },
+    relations = {
+        {"user", belongs_to = "Users", key = "username"}
+    }
 })
 
 -- Remove the protocol and port from a URL
